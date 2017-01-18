@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "myo.h"
 
-const float Threshold = 2.5;
 
 int main(int argc, char **argv) {
    //int hold = 0;
@@ -11,8 +10,12 @@ int main(int argc, char **argv) {
    setup();
 
    for (;;) {
+      char stateString[8] = getStateString(currentState);
+      printf("currentState: %s", stateString);
+
       run();
       _delay_ms(100);
+
       currentState = nextState;
    }
    
@@ -20,51 +23,68 @@ int main(int argc, char **argv) {
 }
 
 // the setup routine runs once when you press reset
-void setup() { 
+void setup() {
    DDRB |= (1 << PB5); // pinMode(13,OUTPUT); // PORTB5 = output
    DDRC &= (1 << PC0); // Sets A0 for input
 }
 
 void run() {
-    float sensorValue = readSensorVoltage();
+   float sensorValue = readSensorVoltage();
 
-   // advance state if sensorValue (voltage) > threshold  
-   if (sensorValue >= Threshold) {
-      advanceState();
-      printInputVoltageHigh();
-   }
-   else {
-      maintainState();
-      printInputVoltageLow();
-   }
+   advanceState();
 }
 
 void advanceState() {
    switch(currentState) {
       case LOWPOW:
+         // remain in low power state until interrupted
          nextState = LOWPOW;
       break;
       
       case OPEN:
-         nextState = CLOSING;
+         // close hand if threshold reached
+         if (voltage >= Threshold) {
+            nextState = CLOSING;  
+         }
+         else {
+            nextState = OPEN;
+         }
       break;
       
       case CLOSED:
-         nextState = OPENING;
+         // open hand if threshold reached
+         if (voltage >= Threshold) {
+            nextState = OPENING;
+         }
+         else {
+            nextState = CLOSED;
+         }
       break;
       
       case OPENING:
-         nextState = OPEN;
+         // hand is open after defined time
+         if (openingDuration >= TIME_TO_OPEN) {
+            nextState = OPEN;
+            openingDuration = 0;
+         }
+         else {
+            nextState = OPENING;
+            openingDuration += TIME_STEP;
+         }
       break;
       
       case CLOSING:
-         nextState = CLOSED;
+         // hand is closed after defined time
+         if (closingDuration >= TIME_TO_CLOSE || isObstructed) {
+            nextState = CLOSED;
+            openingDuration = 0;
+         }
+         else {
+            nextState = CLOSING;
+            closingDuration += TIME_STEP;
+         }
       break;
    }
-}
-
-void maintainState() {
-   nextState = currentState;
 }
 
 float readSensorVoltage() {
@@ -82,4 +102,29 @@ void printInputVoltageHigh() {
 
 void printInputVoltageLow() {
    PORTB &= ~(1<<PB5); //digitalWrite(13,LOW);
+}
+
+char *getStateString(enum state) {
+   char stateString[8];
+   switch (state) {
+      case LOWPOW:
+         stateString = "LOWPOW";
+         break;
+
+      case OPEN:
+         stateString = "OPEN";
+         break;
+      
+      case CLOSED:
+         stateString = "CLOSED";
+         break;
+      
+      case OPENING:
+         stateString = "OPENING";
+         break;
+      
+      case CLOSING:
+         stateString = "CLOSING";
+         break;
+   }
 }

@@ -1,3 +1,8 @@
+const float Threshold = 2.5;
+#define TIME_TO_OPEN 1000
+#define TIME_TO_CLOSE 1000
+#define TIME_STEP 100
+
 enum state {
    LOWPOW,		// low power state
    OPEN,		// opened hand, wait for EMG signal
@@ -8,6 +13,10 @@ enum state {
 
 enum state currentState;
 enum state nextState;
+
+int openingDuration;
+int closingDuration;
+bool isObstructed;
 
 void setup();
 void run();
