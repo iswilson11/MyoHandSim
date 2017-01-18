@@ -5,13 +5,21 @@
 
 #define F_CPU 16000000
 
-const short LOWPOW = 0;
-const short OPENED = 1;
-const short CLOSE  = 2;
-const short CLOSED = 3;
-const short OPEN   = 4;
-
 const float Threshold = 2.5;
+
+int main(int argc, char **argv) {
+   int hold = 0;
+
+   setup();
+
+   for (;;) {
+      run();
+      delay(100);
+      currentState = nextState;
+   }
+   
+   return 0;
+}
 
 // the setup routine runs once when you press reset
 void setup() {
@@ -19,48 +27,60 @@ void setup() {
    pinMode(13,OUTPUT);
 }
 
+void run() {
+    float sensorValue = readSensorVoltage();
 
-
-void changeState(int state) {
-   STATE = state;
+   // advance state if voltage > threshold  
+   if (voltage >= Threshold) {
+      advanceState();
+      printInputVoltageHigh();
+   }
+   else {
+      maintainState();
+      printInputVoltageLow();
+   }
 }
 
+void advanceState() {
+   switch(currentState) {
+      case LOWPOW:
+         nextState = LowPow;
+      break;
+      
+      case OPEN:
+         nextState = CLOSING;
+      break;
+      
+      case CLOSED:
+         nextState = OPENING;
+      break;
+      
+      case OPENING:
+         nextState = OPEN;
+      break;
+      
+      case CLOSING:
+         nextState = CLOSED;
+      break;
+   }
+}
 
-void run() {
-    int sensorValue = analogRead(A0); // read input on analog pin 0
+void maintainState() {
+   nextState = currentState;
+}
+
+float readSensorVoltage() {
+   analogRead(A0);   // read input on analog pin 0
    
    // Convert the analog reading
    //(which goes from 0 - 1023) to a voltage (0 - 5V)
-   float voltage = sensorValue * (5.0 / 1023.0);
-   
-   // print out the value you read
-   if (State = 0 && voltage >= Threshold) {
-      State = 1;
-      //hold = !hold;
-      digitalWrite(13,HIGH);
-   }
-   else if (State = 0 && voltage < Threshold) {
-      State = 0;
-   }
-   
-   if (State = 1 && voltage >= Threshold) {
-      State = 0;
-      //hold = !hold;
-      digitalWrite(13,LOW);
-   }
-   else if (State = 1 && voltage < Threshold) {
-      State = 1;
-   }
-   //Serial.println(hold);
-   delay(100);
+   return sensorValue * (5.0 / 1023.0);
 }
 
-int main(int argc, char **argv) {
-   int hold = 0;
-   STATE = 0;
+void printInputVoltageHigh() {
+   digitalWrite(13,HIGH);
+}
 
-   setup();
-   run();
-   
-   return 0;
+void printInputVoltageLow() {
+   digitalWrite(13,HIGH);
 }

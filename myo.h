@@ -1,8 +1,10 @@
-extern short int STATE;
+enum state {
+   LOWPOW,		// low power state
+   OPEN,		// opened hand, wait for EMG signal
+   CLOSED,		// closed hand, wait for EMG signal
+   OPENING,		// opening hand, accept no input
+   CLOSING		// closing hand, accept no input
+}
 
-extern const short int LOWPOW;  //Low Power state
-extern const short int OPENED;  //Opened hand, wait for EMG Signal
-extern const short int CLOSE;   //Close hand, accept no input
-extern const short int CLOSED;  //Closed hand, wait for EMG Signal
-extern const short int OPEN;    //Open  hand, accept no input
-//extern const short int RESET = 5;   //Reset state (maybe unneccesary)
+enum state currentState;
+enum state nextState;
