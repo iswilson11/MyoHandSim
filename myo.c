@@ -1,20 +1,18 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
-#include "skeleton.h"
-
-#define F_CPU 16000000
+#include "myo.h"
 
 const float Threshold = 2.5;
 
 int main(int argc, char **argv) {
-   int hold = 0;
+   //int hold = 0;
 
    setup();
 
    for (;;) {
       run();
-      delay(100);
+      _delay_ms(100);
       currentState = nextState;
    }
    
@@ -22,16 +20,16 @@ int main(int argc, char **argv) {
 }
 
 // the setup routine runs once when you press reset
-void setup() {
-   Serial.begin(9600); // init serial comm's @ 9600 bps
-   pinMode(13,OUTPUT);
+void setup() { 
+   DDRB |= (1 << PB5); // pinMode(13,OUTPUT); // PORTB5 = output
+   DDRC &= (1 << PC0); // Sets A0 for input
 }
 
 void run() {
     float sensorValue = readSensorVoltage();
 
-   // advance state if voltage > threshold  
-   if (voltage >= Threshold) {
+   // advance state if sensorValue (voltage) > threshold  
+   if (sensorValue >= Threshold) {
       advanceState();
       printInputVoltageHigh();
    }
@@ -44,7 +42,7 @@ void run() {
 void advanceState() {
    switch(currentState) {
       case LOWPOW:
-         nextState = LowPow;
+         nextState = LOWPOW;
       break;
       
       case OPEN:
@@ -70,17 +68,18 @@ void maintainState() {
 }
 
 float readSensorVoltage() {
-   analogRead(A0);   // read input on analog pin 0
-   
+   float sensorValue = analogRead(A0);   // read input on analog pin 0
+   //float sensorValue = 
+
    // Convert the analog reading
    //(which goes from 0 - 1023) to a voltage (0 - 5V)
    return sensorValue * (5.0 / 1023.0);
 }
 
 void printInputVoltageHigh() {
-   digitalWrite(13,HIGH);
+   PORTB |= (1<<PB5); // digitalWrite(13,HIGH);
 }
 
 void printInputVoltageLow() {
-   digitalWrite(13,HIGH);
+   PORTB &= ~(1<<PB5); //digitalWrite(13,LOW);
 }
