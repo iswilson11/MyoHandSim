@@ -30,6 +30,14 @@ void setup() {
    DDRC &= (1 << PC0); // Sets A0 for input
 }
 
+void InitADC()
+{
+    // Select Vref=AVcc
+    ADMUX |= (1<<REFS0);
+    //set prescaller to 128 and enable ADC
+    ADCSRA |= (1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADEN);
+}
+
 void run() {
    float sensorValue = readSensorVoltage();
    
@@ -90,12 +98,23 @@ void advanceState(float voltage) {
 }
 
 float readSensorVoltage() {
-   float sensorValue = analogRead(A0);   // read input on analog pin 0
+   float sensorValue = ReadADC(0);   // read input on analog pin 0
    //float sensorValue = 
 
    // Convert the analog reading
    //(which goes from 0 - 1023) to a voltage (0 - 5V)
    return sensorValue * (5.0 / 1023.0);
+}
+
+uint16_t ReadADC(uint8_t ADCchannel)
+{
+    //select ADC channel with safety mask
+    ADMUX = (ADMUX & 0xF0) | (ADCchannel & 0x0F);
+    //single conversion mode
+    ADCSRA |= (1<<ADSC);
+    // wait until ADC conversion is complete
+    while( ADCSRA & (1<<ADSC) );
+    return ADC;
 }
 
 void printInputVoltageHigh() {

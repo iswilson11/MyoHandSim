@@ -19,10 +19,12 @@ int closingDuration;
 int isObstructed;
 
 void setup();
+void InitADC();
 void run();
 void advanceState(float voltage);
 void maintainState();
 float readSensorVoltage();
+uint16_t ReadADC(uint8_t ADCchannel);
 void printInputVoltageHigh();
 void printInputVoltageLow();
 void getStateString(char stateString[8], state current);
