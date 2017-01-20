@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "myo.h"
 
 
@@ -10,7 +11,8 @@ int main(int argc, char **argv) {
    setup();
 
    for (;;) {
-      char stateString[8] = getStateString(currentState);
+       char stateString[8];
+       getStateString(stateString, currentState);
       printf("currentState: %s", stateString);
 
       run();
@@ -30,11 +32,11 @@ void setup() {
 
 void run() {
    float sensorValue = readSensorVoltage();
-
-   advanceState();
+   
+   advanceState(sensorValue);
 }
 
-void advanceState() {
+void advanceState(float voltage) {
    switch(currentState) {
       case LOWPOW:
          // remain in low power state until interrupted
@@ -104,27 +106,33 @@ void printInputVoltageLow() {
    PORTB &= ~(1<<PB5); //digitalWrite(13,LOW);
 }
 
-char *getStateString(enum state) {
-   char stateString[8];
-   switch (state) {
+void getStateString(char stateString[8], state current) {
+   //char stateString[8];
+   switch (current) {
       case LOWPOW:
          stateString = "LOWPOW";
+         //return "LOWPOW";
+           
          break;
 
       case OPEN:
          stateString = "OPEN";
+         //return "OPEN";
          break;
       
       case CLOSED:
          stateString = "CLOSED";
+         //return "CLOSED";
          break;
       
       case OPENING:
          stateString = "OPENING";
+         //return "OPENING";
          break;
       
       case CLOSING:
          stateString = "CLOSING";
+         //return "CLOSING";
          break;
    }
 }
