@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 // the setup routine runs once when you press reset
 void setup() {
    DDRB |= (1 << PB5); // pinMode(13,OUTPUT); // PORTB5 = output
-   DDRC &= (1 << PC0); // Sets A0 for input
+   DDRC &= ~(1 << PC0); // Sets A0 for input
 }
 
 void InitADC()
