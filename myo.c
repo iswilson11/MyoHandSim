@@ -9,6 +9,7 @@ int main(int argc, char **argv) {
    //int hold = 0;
 
    setup();
+   initADC();
 
    for (;;) {
        char stateString[8];
@@ -27,14 +28,17 @@ int main(int argc, char **argv) {
 // the setup routine runs once when you press reset
 void setup() {
    DDRB |= (1 << PB5); // pinMode(13,OUTPUT); // PORTB5 = output
-   DDRC &= ~(1 << PC0); // Sets A0 for input
 }
 
-void InitADC()
+void initADC()
 {
-    // Select Vref=AVcc
+	// Select Vref=AVcc
     ADMUX |= (1<<REFS0);
-    //set prescaller to 128 and enable ADC
+	
+	// Left align data
+	ADMUX |= (1<<ADLAR); 
+	
+	//set prescaler to 128 and enable ADC
     ADCSRA |= (1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADEN);
 }
 
@@ -106,15 +110,20 @@ float readSensorVoltage() {
    return sensorValue * (5.0 / 1023.0);
 }
 
-uint16_t ReadADC(uint8_t ADCchannel)
+unsigned char ReadADC(unsigned char channel)
 {
+	unsigned char analogVal;
+	
     //select ADC channel with safety mask
-    ADMUX = (ADMUX & 0xF0) | (ADCchannel & 0x0F);
+    ADMUX = (ADMUX & 0xE0) | channel;
     //single conversion mode
     ADCSRA |= (1<<ADSC);
     // wait until ADC conversion is complete
-    while( ADCSRA & (1<<ADSC) );
-    return ADC;
+    while( ADCSRA & (1<<ADSC));
+	
+	analogVal = ADCH;
+	
+    return analogVal;
 }
 
 void printInputVoltageHigh() {

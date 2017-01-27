@@ -19,7 +19,7 @@ int closingDuration;
 int isObstructed;
 
 void setup();
-void InitADC();
+void initADC();
 void run();
 void advanceState(float voltage);
 void maintainState();
