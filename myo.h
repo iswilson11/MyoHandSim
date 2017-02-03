@@ -1,7 +1,11 @@
+#include <stdint.h>
+
 const float Threshold = 2.5;
+
 #define TIME_TO_OPEN 1000
 #define TIME_TO_CLOSE 1000
 #define TIME_STEP 100
+#define INIT_STATE LOWPOW
 
 typedef enum {
    LOWPOW,		// low power state
@@ -13,6 +17,7 @@ typedef enum {
 
 state currentState;
 state nextState;
+int ADC_Status;
 
 int openingDuration;
 int closingDuration;
@@ -24,7 +29,7 @@ void run();
 void advanceState(float voltage);
 void maintainState();
 float readSensorVoltage();
-uint16_t ReadADC(uint8_t ADCchannel);
+uint8_t ReadADC(uint8_t ADCchannel);
 void printInputVoltageHigh();
 void printInputVoltageLow();
 void getStateString(char stateString[8], state current);
