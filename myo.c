@@ -46,22 +46,10 @@ void setup() {
 }
 
 void initADC()
-{
-	uint8_t pin = ANALOG_PIN;
-	
-	// Checks if valid Analog Pin for atmega328p
-	if (ANALOG_PIN <= 7) {
-		// Gets pin for ADMUX
-		pin  = 0x00 & ANALOG_PIN;
-	}
-	else {
-		exit(INVALID_ANALOG_PIN);
-	}
-	
+{	
 	// ADC Settings
     ADMUX |= (1<<REFS0) | // Select Vref=AVcc
-	         (1<<ADLAR) | // Left align data
-	         pin; // Selects Analog Pin
+	         (1<<ADLAR);  // Left align data
 	
 	// Sets ADC Control and Status Register A
     ADCSRA |= (1<<ADEN)  | // Enables ADC
